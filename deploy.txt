@@ -1,5 +1,117 @@
-                    deploy  
+                    deploy   postgres
 
 VAMOS A HACERLO EN RENDER . COM 
+
+
+importamos os 
+
+remplazamos la secret key de settings.py con 
+SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
+
+en debug rempalzamos por 
+DEBUG = 'RENDER' not in os.environ
+
+abajo de allowed host colocamos 
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+DEBEMOS USAR UNA DATABASE REAL, no de prueba como mysqlite 
+
+en consola pip install dj-database-url
+
+pip install psycopg2-binary  para conectarnos a postgresql 
+
+pip install whitenoise[brotli]
+
+en databases DATABASES = {
+    'default': dj_database_url.config(
+    default='postgresql://postgres@localhost/postgres',
+    conn_max_age=600
+    )
+}
+esto es para que funcione en postgresql 
+
+
+agregamos en middleware 'whitenoise.middleware.WhiteNoiseMiddleware', 
+
+en static 
+
+STATIC_URL = '/static/'
+# Following settings only make sense on production and may break development environments.
+if not DEBUG:    # Tell Django to copy statics to the `staticfiles` directory
+    # in your application directory on Render.
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    # Turn on WhiteNoise storage backend that takes care of compressing static files
+    # and creating unique names for each version so they can safely be cached forever.
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
+creamos un archivo fuera de todas las carpetas llamado 
+build.sh y pegamos esto 
+
+
+set -o errexit
+
+
+python manage.py collectstatic --no-input
+python manage.py migrate
+
+
+
+agregamos la terminal gitbush para ejecutar los siguientes comandos 
+
+chmod a+x build.sh
+
+pip install gunicorn 
+
+en cmd 
+
+pip freeze > requirements.txt
+
+en build.sh 
+
+pip install -r requirements.txt
+
+                    DEPLOY FINAL  
+
+en cmd 
+
+git init para crear el repositor vacio 
+
+git add .  
+
+podemos acudir al archuvo gitignore donde indicamos que carpetas no subir 
+
+git commit -m "first" crea el repositorio llamado first 
+
+                    creamos el repositorio en github 
+
+creamos el repositorio en github y en consola aplicamos el git remote add 
+
+git push origin master en cmd 
+
+vamos a render a subirlo 
+
+indicamos que vamsos a subir un web service 
+
+en consola 
+
+git status 
+
+git add . 
+
+git commit 
+
+git push 
+
+https://www.youtube.com/watch?v=e6PkGDH4wWA
+
+
+
+
+
+
+
 
 
